@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Portfolio Project</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --accent-color: #60a5fa;
+      --bg-dark: #070a13;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Pretendard', sans-serif; }
+    body {
+      width: 1080px; height: 1080px; background: var(--bg-dark);
+      display: flex; justify-content: center; align-items: center; overflow: hidden;
+    }
+    .card-container {
+      width: 1080px; height: 1080px; position: relative;
+      background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                  var(--bg-dark);
+      display: flex; flex-direction: column; justify-content: space-between; padding: 80px;
+    }
+    .visual-bg-wrapper {
+      position: absolute; top:0; left:0; width:100%; height:100%; z-index:1; opacity:0.45;
+      background-size: cover; background-position: center; mix-blend-mode: screen;
+    }
+    .content-layer {
+      position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .brand-badge {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
+      background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 9999px; color: var(--accent-color); font-weight: 700; font-size: 18px;
+    }
+    .slide-indicator { font-size: 24px; font-weight: 700; color: var(--text-sub); letter-spacing: 2px; }
+    .slide-indicator span { color: var(--accent-color); }
+    .main-body { margin-top: auto; margin-bottom: auto; display: flex; flex-direction: column; gap: 24px; }
+    .category-label { font-size: 22px; font-weight: 700; color: var(--accent-color); letter-spacing: 2px; text-transform: uppercase; }
+    .title { font-size: 56px; font-weight: 800; line-height: 1.25; color: var(--text-main); word-break: keep-all; }
+    .title .highlight {
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .description { font-size: 28px; line-height: 1.6; color: var(--text-sub); word-break: keep-all; max-width: 900px; }
+    .footer { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .footer-note { font-size: 20px; color: #64748b; font-weight: 500; }
+    .cta-pill {
+      font-size: 20px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #2563eb, #4f46e5);
+      padding: 14px 28px; border-radius: 9999px; box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+    <div class="visual-bg-wrapper" style="background-image: url('../assets/track_a_bg.svg');"></div>
+    <div class="content-layer">
+      <div class="header">
+        <div class="brand-badge">💼 NEO STUDIO • Portfolio</div>
+        <div class="slide-indicator"><span>01</span> / 05</div>
+      </div>
+      <div class="main-body">
+        <div class="category-label">Portfolio Project</div>
+        <h1 class="title">디자이너의 생산성을 10배 확장하는<br><span class='highlight'>AI 디자인 시스템 에이전트</span></h1>
+        <p class="description">단순 리사이징과 반복 작업에서 벗어나세요. Gemini와 DALL-E 3를 결합하여 디자인 시스템 정합성을 99% 유지하는 자동화 파이프라인 구축 프로젝트입니다.</p>
+      </div>
+      <div class="footer">
+        <div class="footer-note">Designed by [학생이름] | Portfolio 2027</div>
+        <div class="cta-pill">프로젝트 개요 →</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

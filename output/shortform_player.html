@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Reels & Shorts Player</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Pretendard', sans-serif; }
+    body {
+      background: #000;
+      color: #fff;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #030712 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 24px 30px;
+    }
+
+    /* Ambient Motion Background */
+    .motion-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1;
+      opacity: 0.6;
+      background-size: cover;
+      background-position: center;
+      transition: all 1s ease-in-out;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(50px);
+      animation: floatBlob 8s infinite alternate ease-in-out;
+    }
+    .blob-1 { width: 250px; height: 250px; background: #3b82f6; top: 15%; left: -10%; opacity: 0.4; }
+    .blob-2 { width: 300px; height: 300px; background: #8b5cf6; bottom: 20%; right: -20%; opacity: 0.35; animation-delay: -3s; }
+    .blob-3 { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 30%; opacity: 0.3; animation-delay: -5s; }
+
+    @keyframes floatBlob {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 40px) scale(1.15); }
+    }
+
+    /* Progress Bar on Top */
+    .top-progress {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      gap: 4px;
+      width: 100%;
+      height: 3px;
+      margin-bottom: 16px;
+    }
+    .bar-segment {
+      flex: 1;
+      background: rgba(255,255,255,0.25);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      transition: width 0.1s linear;
+    }
+
+    /* Header */
+    .video-header {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.25);
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #93c5fd;
+      backdrop-filter: blur(8px);
+    }
+    .sound-btn {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Center Visual / 3D Scene Area */
+    .scene-viewport {
+      position: relative;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px 0;
+      flex: 1;
+    }
+    .scene-tag {
+      font-size: 14px;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .scene-title {
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1.3;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      margin-bottom: 16px;
+    }
+    .scene-title span {
+      background: linear-gradient(135deg, #38bdf8 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Kinetic Subtitles (Tik-Tok style prominent captions) */
+    .kinetic-subtitle-box {
+      margin-top: 20px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .kinetic-subtitle {
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fef08a; /* Bright yellow subtitle */
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      letter-spacing: -0.5px;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Footer Controls */
+    .video-footer {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .cta-banner {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+    }
+    .play-trigger {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .play-trigger:hover { background: rgba(255,255,255,0.25); }
+  </style>
+</head>
+<body>
+  <div class="phone-screen" id="player">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="top-progress">
+      <div class="bar-segment"><div class="bar-fill" id="fill-0"></div></div>
+      <div class="bar-segment"><div class="bar-fill" id="fill-1"></div></div>
+      <div class="bar-segment"><div class="bar-fill" id="fill-2"></div></div>
+      <div class="bar-segment"><div class="bar-fill" id="fill-3"></div></div>
+    </div>
+
+    <div class="video-header">
+      <div class="badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/></svg>
+        Gemini 옴니플래시 30s
+      </div>
+      <button class="sound-btn" onclick="toggleSound()" id="sound-btn">🔊</button>
+    </div>
+
+    <div class="scene-viewport">
+      <div class="scene-tag" id="scene-tag">SCENE 01 / HOOK</div>
+      <h1 class="scene-title" id="scene-title">디자이너,<br><span>코딩까지 해야 할까?</span></h1>
+      
+      <div class="kinetic-subtitle-box">
+        <div class="kinetic-subtitle" id="kinetic-caption">"디자이너인데 코딩까지 배워야 할까 고민되시나요?"</div>
+      </div>
+    </div>
+
+    <div class="video-footer">
+      <div class="cta-banner">
+        <span>2027 컴퓨터그래픽디자인과</span>
+        <span>원서 접수 중 →</span>
+      </div>
+      <button class="play-trigger" onclick="togglePlay()" id="play-btn">
+        <span id="play-icon">⏸</span> <span id="play-text">일시 정지</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const scenes = [
+      {
+        tag: "SCENE 01 / HOOK (0~5s)",
+        title: "디자이너,<br><span>코딩까지 해야 할까?</span>",
+        caption: "디자이너인데 코딩까지 배워야 할까 고민되시나요?",
+        duration: 5000,
+        voiceText: "디자이너인데 코딩까지 배워야 할까 고민되시나요?"
+      },
+      {
+        tag: "SCENE 02 / PROBLEM (5~13s)",
+        title: "단순 툴 작업은 NO<br><span>이제는 AI 에이전트!</span>",
+        caption: "단순 반복 작업은 끝났습니다. AI 에이전트를 다루는 게 핵심입니다.",
+        duration: 8000,
+        voiceText: "단순 반복 작업은 끝났습니다. 이제는 AI 에이전트를 다루는 역량이 디자이너의 진짜 경쟁력입니다."
+      },
+      {
+        tag: "SCENE 03 / SOLUTION (13~23s)",
+        title: "Gemini + GPT 결합<br><span>단 10분 만에 렌더링!</span>",
+        caption: "기획부터 이미지, 숏폼 영상까지 에이전트가 완성합니다.",
+        duration: 10000,
+        voiceText: "Gemini와 GPT Image를 결합해 기획부터 숏폼 영상까지 10분 만에 완성하는 실무를 배웁니다."
+      },
+      {
+        tag: "SCENE 04 / CTA (23~30s)",
+        title: "교육비 0원 전액 무료<br><span>2027 신입생 모집!</span>",
+        caption: "서울시 전액 무료 지원! 프로필 링크에서 바로 접수하세요.",
+        duration: 7000,
+        voiceText: "교육비 영원, 전액 서울시 지원. 지금 프로필 링크에서 원서를 접수하세요!"
+      }
+    ];
+
+    let currentSceneIdx = 0;
+    let isPlaying = true;
+    let isSoundOn = true;
+    let sceneTimer = null;
+    let progressInterval = null;
+    let startTime = 0;
+
+    function speak(text) {
+      if (!isSoundOn || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ko-KR';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderScene(idx) {
+      const s = scenes[idx];
+      document.getElementById('scene-tag').innerText = s.tag;
+      document.getElementById('scene-title').innerHTML = s.title;
+      document.getElementById('kinetic-caption').innerText = s.caption;
+      
+      // reset fills
+      for (let i = 0; i < 4; i++) {
+        const fill = document.getElementById('fill-' + i);
+        if (i < idx) fill.style.width = '100%';
+        else if (i > idx) fill.style.width = '0%';
+      }
+
+      speak(s.voiceText);
+      runProgress(idx, s.duration);
+    }
+
+    function runProgress(idx, duration) {
+      clearInterval(progressInterval);
+      const fill = document.getElementById('fill-' + idx);
+      startTime = Date.now();
+      
+      progressInterval = setInterval(() => {
+        if (!isPlaying) return;
+        const elapsed = Date.now() - startTime;
+        const pct = Math.min((elapsed / duration) * 100, 100);
+        fill.style.width = pct + '%';
+        if (pct >= 100) {
+          clearInterval(progressInterval);
+          nextScene();
+        }
+      }, 50);
+    }
+
+    function nextScene() {
+      currentSceneIdx = (currentSceneIdx + 1) % scenes.length;
+      renderScene(currentSceneIdx);
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('play-icon').innerText = isPlaying ? '⏸' : '▶';
+      document.getElementById('play-text').innerText = isPlaying ? '일시 정지' : '재생';
+      if (!isPlaying) {
+        window.speechSynthesis.cancel();
+      } else {
+        renderScene(currentSceneIdx);
+      }
+    }
+
+    function toggleSound() {
+      isSoundOn = !isSoundOn;
+      document.getElementById('sound-btn').innerText = isSoundOn ? '🔊' : '🔇';
+      if (!isSoundOn) window.speechSynthesis.cancel();
+    }
+
+    window.onload = () => {
+      renderScene(0);
+    };
+  </script>
+</body>
+</html>

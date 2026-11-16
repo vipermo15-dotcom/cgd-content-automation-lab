@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>콘텐츠 & 숏폼 자동화 에이전트 실습 검토 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --surface: #151e32;
+      --surface-border: #24324d;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #8b5cf6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 40px; min-height: 100vh; }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--surface-border);
+      margin-bottom: 32px;
+    }
+
+    .header-title h1 { font-size: 26px; font-weight: 800; }
+    .header-title p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn {
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--surface-border);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .tab-btn.highlight {
+      border-color: #8b5cf6;
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+    }
+    .tab-btn.highlight.active {
+      background: linear-gradient(135deg, #2563eb, #8b5cf6);
+      color: #fff;
+    }
+
+    .channel-content { display: none; }
+    .channel-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+
+    .single-col { grid-template-columns: 1fr !important; max-width: 900px; margin: 0 auto; }
+
+    .preview-box {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .preview-box h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Instagram Carousel View */
+    .carousel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .iframe-wrapper {
+      width: 480px;
+      height: 480px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--surface-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      background: #000;
+    }
+
+    .iframe-wrapper iframe {
+      width: 1080px;
+      height: 1080px;
+      transform: scale(0.44444);
+      transform-origin: top left;
+      border: none;
+    }
+
+    /* Reels Mobile Frame */
+    .phone-mockup {
+      width: 320px;
+      height: 580px;
+      border-radius: 36px;
+      border: 8px solid #2d3748;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      overflow: hidden;
+      margin: 0 auto;
+      background: #000;
+      position: relative;
+    }
+    .phone-mockup iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .nav-btn:hover { background: var(--primary); }
+
+    /* Copy editor area */
+    .copy-area {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 380px;
+      background: #070b14;
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .action-btn:hover { background: var(--primary-hover); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+    /* Storyboard list */
+    .storyboard-card {
+      background: #0d1525;
+      border: 1px solid var(--surface-border);
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .storyboard-card h4 {
+      font-size: 14px;
+      color: #38bdf8;
+      margin-bottom: 6px;
+    }
+    .storyboard-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Naver Blog formatted box */
+    .blog-rich-preview {
+      background: #ffffff;
+      color: #1e293b;
+      padding: 32px;
+      border-radius: 12px;
+      min-height: 400px;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+    .blog-rich-preview h2 { color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin: 24px 0 12px; }
+    .blog-rich-preview p { margin-bottom: 16px; }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #10b981;
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="header-title">
+      <h1>[실습] 콘텐츠 & 숏폼 자동화 에이전트 검토 대시보드</h1>
+      <p>Gemini Plus + 옴니플래시(숏폼) + GPT Image(카드뉴스) | 교육생 실습 사전 테스트 버전</p>
+    </div>
+    <div class="status-badge">● 에셋 & 비디오 생성 완료 (검토 대기)</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn highlight active" onclick="switchTab('reels')">🎬 Reels & Shorts (숏폼 영상)</button>
+    <button class="tab-btn" onclick="switchTab('insta')">📷 Instagram (1:1 카드뉴스)</button>
+    <button class="tab-btn" onclick="switchTab('threads')">🧵 Threads (스레드 타래)</button>
+    <button class="tab-btn" onclick="switchTab('linkedin')">💼 LinkedIn (전문 캐러셀)</button>
+    <button class="tab-btn" onclick="switchTab('naver')">🟢 Naver Blog (스마트 서식)</button>
+  </div>
+
+  <!-- REELS & SHORTS TAB (NEW) -->
+  <div id="tab-reels" class="channel-content active">
+    <div class="preview-box" style="display:flex; flex-direction:column; align-items:center;">
+      <h2 style="width:100%;">9:16 모바일 숏폼 플레이어 <span style="font-size:12px; color:#38bdf8;">Gemini 옴니플래시 30s</span></h2>
+      <div class="phone-mockup">
+        <iframe src="shortform_player.html"></iframe>
+      </div>
+      <p style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+        💡 실시간 네이티브 음성(Speech) 및 4씬 키네틱 타이포그래피 재생 중
+      </p>
+    </div>
+
+    <div class="preview-box copy-area">
+      <h2>30초 숏폼 4씬 스토리보드 & 대본</h2>
+      <div style="max-height: 280px; overflow-y: auto; padding-right: 8px;">
+        <div class="storyboard-card">
+          <h4>Scene 1: Hook (0~5s)</h4>
+          <p><strong>자막:</strong> "디자이너, 코딩까지 해야 할까? 🤔"</p>
+          <p><strong>대본:</strong> 디자이너인데 코딩까지 배워야 할까 고민되시나요?</p>
+        </div>
+        <div class="storyboard-card">
+          <h4>Scene 2: Problem (5~13s)</h4>
+          <p><strong>자막:</strong> "단순 작업 NO, 이제는 AI 에이전트! 🚀"</p>
+          <p><strong>대본:</strong> 단순 반복 작업은 끝났습니다. 이제는 AI 에이전트를 다루는 역량이 디자이너의 진짜 경쟁력입니다.</p>
+        </div>
+        <div class="storyboard-card">
+          <h4>Scene 3: Solution (13~23s)</h4>
+          <p><strong>자막:</strong> "기획부터 렌더링까지 단 10분 ⏱️"</p>
+          <p><strong>대본:</strong> Gemini와 GPT Image를 결합해 기획부터 숏폼 영상까지 10분 만에 완성하는 실무를 배웁니다.</p>
+        </div>
+        <div class="storyboard-card">
+          <h4>Scene 4: CTA (23~30s)</h4>
+          <p><strong>자막:</strong> "교육비 0원 전액 무료! 프로필 링크 클릭 🔗"</p>
+          <p><strong>대본:</strong> 교육비 영원, 전액 서울시 지원. 지금 프로필 링크에서 원서를 접수하세요!</p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:12px;">
+        <button class="action-btn" onclick="showToast('MP4 숏폼 영상 렌더링 파일(1080x1920)이 준비되었습니다.')">📥 9:16 MP4 다운로드</button>
+        <button class="action-btn btn-outline" onclick="copyText('reels-caption')">📋 릴스 캡션 복사</button>
+      </div>
+      <input type="hidden" id="reels-caption" value="디자이너, 코딩까지 해야 할까요? 🚀 생성형 AI와 에이전트로 10분 만에 끝내는 콘텐츠 자동화 파이프라인! 교육비 전액 서울시 지원. 지금 프로필 링크 확인! #컴그과 #릴스 #쇼츠 #AI크리에이터">
+    </div>
+  </div>
+
+  <!-- INSTAGRAM TAB -->
+  <div id="tab-insta" class="channel-content">
+    <div class="preview-box">
+      <h2>카드뉴스 슬라이드 뷰어 <span style="font-size:13px; color:var(--text-muted);" id="slide-num-text">1 / 5</span></h2>
+      <div class="carousel-container">
+        <div class="iframe-wrapper">
+          <iframe id="card-iframe" src="slides/slide_1.html"></iframe>
+        </div>
+        <div class="slide-controls">
+          <button class="nav-btn" onclick="prevSlide()">◀ 이전</button>
+          <span id="slide-counter" style="font-weight:700;">1 / 5</span>
+          <button class="nav-btn" onclick="nextSlide()">다음 ▶</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-box copy-area">
+      <h2>피드 캡션 및 해시태그</h2>
+      <textarea id="insta-caption">{{INSTA_CAPTION}}</textarea>
+      <div style="display:flex; gap:12px;">
+        <button class="action-btn" onclick="copyText('insta-caption')">📋 캡션 복사하기</button>
+        <button class="action-btn btn-outline" onclick="showToast('수정 내용이 저장되었습니다.')">💾 수정사항 임시저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THREADS TAB -->
+  <div id="tab-threads" class="channel-content">
+    <div class="preview-box copy-area" style="grid-column: span 2;">
+      <h2>스레드 타래 카피 (대화형·인사이트)</h2>
+      <textarea id="threads-copy" style="height:250px;">{{THREADS_COPY}}</textarea>
+      <div>
+        <button class="action-btn" onclick="copyText('threads-copy')">📋 스레드 전체 복사</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINKEDIN TAB -->
+  <div id="tab-linkedin" class="channel-content">
+    <div class="preview-box copy-area" style="grid-column: span 2;">
+      <h2>링크드인 전문 포스팅 (Document 캐러셀용 카피)</h2>
+      <textarea id="linkedin-copy" style="height:280px;">{{LINKEDIN_COPY}}</textarea>
+      <div>
+        <button class="action-btn" onclick="copyText('linkedin-copy')">📋 링크드인 본문 복사</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVER BLOG TAB -->
+  <div id="tab-naver" class="channel-content single-col">
+    <div class="preview-box">
+      <h2>네이버 블로그 서식 미리보기 
+        <button class="action-btn" style="background:#03c75a;" onclick="copyRichBlog()">✨ 스마트 서식 원클릭 복사</button>
+      </h2>
+      <div id="blog-content" class="blog-rich-preview">
+        {{BLOG_RICH_HTML}}
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">클립보드에 복사되었습니다!</div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 5;
+
+    function switchTab(channel) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.channel-content').forEach(el => el.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + channel).classList.add('active');
+    }
+
+    function updateSlide() {
+      document.getElementById('card-iframe').src = 'slides/slide_' + currentSlide + '.html';
+      document.getElementById('slide-counter').innerText = currentSlide + ' / ' + totalSlides;
+      document.getElementById('slide-num-text').innerText = currentSlide + ' / ' + totalSlides;
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) { currentSlide--; updateSlide(); }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) { currentSlide++; updateSlide(); }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    function copyText(id) {
+      const el = document.getElementById(id);
+      const text = el.value || el.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('텍스트가 클립보드에 복사되었습니다!');
+      });
+    }
+
+    function copyRichBlog() {
+      const richDiv = document.getElementById('blog-content');
+      const blobHtml = new Blob([richDiv.innerHTML], { type: 'text/html' });
+      const blobText = new Blob([richDiv.innerText], { type: 'text/plain' });
+      const item = new ClipboardItem({
+        'text/html': blobHtml,
+        'text/plain': blobText
+      });
+      navigator.clipboard.write([item]).then(() => {
+        showToast('네이버 스마트에디터 서식이 클립보드에 복사되었습니다! (Ctrl+V로 붙여넣으세요)');
+      }).catch(err => {
+        navigator.clipboard.writeText(richDiv.innerText).then(() => {
+          showToast('텍스트가 복사되었습니다!');
+        });
+      });
+    }
+  </script>
+</body>
+</html>
